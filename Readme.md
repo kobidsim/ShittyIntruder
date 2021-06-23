@@ -1,0 +1,1 @@
+Just making a small version of Burp Intruder for myself because i don't have BurpSuite Pro.
