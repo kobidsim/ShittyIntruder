@@ -25,7 +25,7 @@ password = ''
 def sendIt(payload, index):
 	response = sendGetRequest(domain, index, payload)
 	match = response.text
-	if response.length != 5662:
+	if len(response.text) != 5662:
 		print('Found for dir:',payload)
 		return payload
 	else:
@@ -42,9 +42,7 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
 	found = False
 	for f in concurrent.futures.as_completed(threads):
 		if f.result() != None:
-			password+=f.result()
-			found = True
-			i+=1
+			print("Couldn't find for", f.result())
 
-print("Found:", found)
+
 print('Operation Complete')
